@@ -19,7 +19,7 @@ resource "google_compute_subnetwork" "subnet_private" {
 }
 
 resource "google_compute_firewall" "allow-all-ingress" {
-    name = "allow-all-ingress"
+    name = "${google_compute_network.vpc.name}-allow-all-ingress"
     network = google_compute_network.vpc.self_link
     allow {
       protocol = "all"
