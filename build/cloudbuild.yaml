@@ -12,7 +12,7 @@ steps:
   name: 'hashicorp/terraform:1.0.0'
   args: 
   - apply
-  - -auto-approve
+  - auto-approve
   dir: infra
 
 - id: 'configure sql instance'
