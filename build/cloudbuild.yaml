@@ -15,7 +15,7 @@ steps:
   - -auto-approve
   dir: infra
 
-- id: 'upload data'
+- id: 'configure sql instance'
   name: 'gcr.io/cloud-builders/gcloud-slim'
   entrypoint: 'sh'
   args: 
@@ -34,8 +34,21 @@ steps:
 
 
 
-
-
+- id: 'build docker images of frontend and backend and push them to private repo'
+  name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    cd /root/
+    git clone https://github.com/akscicd/three-tier-webapp-infra.git
+    cd /root/three-tier-webapp-infra/backend-docker-image/
+    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend:latest .
+    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend:latest
+    cd /root/three-tier-webapp-infra/frontend-docker-image
+    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend:latest .
+    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend:latest
+    
 options:
   env:
     - TF_VAR_project_id=$PROJECT_ID
