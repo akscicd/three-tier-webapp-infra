@@ -47,11 +47,13 @@ resource "google_compute_router_nat" "nat_gateway" {
 }
 
 resource "google_compute_global_address" "private-services-access-ip-ranges" {
-  name          = "private-services-access-ip-ranges"
-  address       = "10.200.0.0"
-  prefix_length = 24
+  name          = "private-services-access-ip-ranges0001"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
   network       = google_compute_network.vpc.self_link
 }
+
 
 resource "google_service_networking_connection" "creating-connection-to-gcp-service" {
   network                 = google_compute_network.vpc.self_link
