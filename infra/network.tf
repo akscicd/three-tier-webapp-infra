@@ -47,7 +47,7 @@ resource "google_compute_router_nat" "nat_gateway" {
 }
 
 resource "google_compute_global_address" "private-services-access-ip-ranges" {
-  name          = "private-services-access-ip-ranges0001"
+  name          = "${google_compute_network.vpc.name}-private-services-access-ip-ranges"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
