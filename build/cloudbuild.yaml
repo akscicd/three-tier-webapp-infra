@@ -35,6 +35,23 @@ steps:
 
 
 
+- id: 'replace app-server ip in nginx.conf'
+  name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" application-code/nginx.conf
+
+- id: 'replace db ip in DbConfig.js'
+  name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" application-code/app-tier/DbConfig.js
+
+
 
 - id: 'build docker images of frontend and backend and push them to private repo'
   name: 'gcr.io/cloud-builders/docker'
@@ -42,14 +59,17 @@ steps:
   args:
   - '-c'
   - |
+    gcloud auth configure-docker europe-west1-docker.pkg.dev
     cd /root/
     git clone https://github.com/akscicd/three-tier-webapp-infra.git
+    
     cd /root/three-tier-webapp-infra/backend-docker-image/
-    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend:latest .
-    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend:latest
+    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend .
+    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend
+    
     cd /root/three-tier-webapp-infra/frontend-docker-image
-    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend:latest .
-    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend:latest
+    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend .
+    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend
     
 options:
   env:
