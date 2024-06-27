@@ -19,10 +19,6 @@ resource "google_sql_database_instance" "db-instance" {
         ip_configuration {
             ipv4_enabled = false
             private_network = google_compute_network.vpc.self_link
-            authorized_networks {
-                name = "Allow subnet of app-server"
-                value = google_compute_subnetwork.subnet_private.ip_cidr_range
-                }
         }
     }
     deletion_protection = false
