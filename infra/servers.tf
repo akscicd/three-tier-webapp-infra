@@ -25,7 +25,7 @@ resource "google_compute_instance" "web-server" {
       }
     }
     network_interface {
-      subnetwork = google_compute_subnetwork.subnet_public
+      subnetwork = google_compute_subnetwork.subnet_public.self_link
       access_config {
         
       }
