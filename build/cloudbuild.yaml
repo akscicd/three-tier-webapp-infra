@@ -37,19 +37,19 @@ steps:
 
 - id: 'replace app-server ip in nginx.conf'
   name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" application-code/nginx.conf
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" application-code/nginx.conf
 
 - id: 'replace db ip in DbConfig.js'
   name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" application-code/app-tier/DbConfig.js
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" application-code/app-tier/DbConfig.js
 
 
 
