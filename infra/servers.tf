@@ -1,6 +1,6 @@
 resource "google_compute_instance" "app-server" {
     name = var.app-server-name
-    zone = "${google_compute_network.vpc.region}-b"
+    zone = "europe-west1-b"
     machine_type = "e2-medium"
     
     boot_disk {
@@ -16,7 +16,7 @@ resource "google_compute_instance" "app-server" {
 
 resource "google_compute_instance" "web-server" {
     name = var.web-server-name
-    zone = "${google_compute_network.vpc.region}-b"
+    zone = "europe-west1-b"
     machine_type = "e2-medium"
 
     boot_disk {
@@ -30,6 +30,6 @@ resource "google_compute_instance" "web-server" {
         
       }
     }
-    tags = [http-server]
+    tags = ["http-server"]
     metadata_startup_script = "#!/bin/bash"
 }
