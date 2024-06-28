@@ -5,9 +5,7 @@ steps:
   args: 
   - '-c'
   - | 
-    terraform init \
-    -backend-config="bucket=$PROJECT_ID-tf-state" \
-    -backend-config="prefix=three-tier-app-gce"
+    terraform init
   dir: infra   
   
 - id: 'tf apply'
@@ -15,64 +13,50 @@ steps:
   entrypoint: 'sh'
   args: 
   - '-c'
-  - | 
+  - |
     terraform apply --auto-approve
+    export APP_SERVER_PRIVATE_IP1=$(terraform output -raw app_server_private
+    echo $APP_SERVER_PRIVATE_IP
   dir: infra
 
-- id: 'configure sql instance'
-  name: 'gcr.io/cloud-builders/gcloud-slim'
-  entrypoint: 'sh'
-  args: 
-  - '-c'
-  - |
-    export DATABASE_INSTANCE=$(gcloud sql instances list --format='value(name)' --filter='labels.tier:3')
-    export SERVICE_ACCOUNT=$(gcloud sql instances describe $$DATABASE_INSTANCE --format='value(serviceAccountEmailAddress)')
-    gsutil mb gs://$PROJECT_ID-sqldata
-    gsutil cp schema.sql gs://$PROJECT_ID-sqldata
-    gsutil iam ch serviceAccount:$$SERVICE_ACCOUNT:objectAdmin gs://$PROJECT_ID-sqldata
-    gcloud sql import sql $$DATABASE_INSTANCE gs://$PROJECT_ID-sqldata/schema.sql -q
-    gsutil rm gs://$PROJECT_ID-sqldata/schema.sql
-    gsutil rb gs://$PROJECT_ID-sqldata
-  dir: sql
-
-
-
-- id: 'replace app-server ip in nginx.conf'
+- id: 'replace ip in nginx.conf'
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
-      sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" application-code/nginx.conf
-
-- id: 'replace db ip in DbConfig.js'
-  name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" application-code/app-tier/DbConfig.js
+      echo $APP_SERVER_PRIVATE_IP
+      echo "BEFORE REPLACEMENT"
+      vim nginx.conf
+      sudo sed -i "s/APP_SERVER_PRIVATE_IP/$APP_SERVER_PRIVATE_IP/g" nginx.conf
+      echo "AFTER REPLACEMENT"
+      vim nginx.conf
+  dir: application-code
 
 
-
-- id: 'build docker images of frontend and backend and push them to private repo'
+- id: 'build backend'
   name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
     gcloud auth configure-docker europe-west1-docker.pkg.dev
-    cd /root/
-    git clone https://github.com/akscicd/three-tier-webapp-infra.git
-    
-    cd /root/three-tier-webapp-infra/backend-docker-image/
     docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend .
     docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend
-    
-    cd /root/three-tier-webapp-infra/frontend-docker-image
+  dir: backend-docker-image
+
+- id: 'build frontend'
+  name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud auth configure-docker europe-west1-docker.pkg.dev
     docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend .
     docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend
-    
+  dir: frontend-docker-image
+
+
 options:
   env:
     - TF_VAR_project_id=$PROJECT_ID
