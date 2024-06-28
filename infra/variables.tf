@@ -16,3 +16,5 @@ variable "app-server-name" {
 }
 variable "web-server-name" {
 }
+variable "app_svc_acc_name" {
+}
