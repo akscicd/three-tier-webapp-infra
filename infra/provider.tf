@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
     bucket = "dynamic-parity-426014-s3-tf-state"
-    prefix = "testbranch-tfsate"
+    prefix = "testbranch-tfstate"
   }
   required_providers {
     google = {
