@@ -10,3 +10,12 @@ resource "google_project_iam_binding" "artifactregistry_admin_binding" {
     "serviceAccount:${google_service_account.app_svc_acc.email}",
   ]
 }
+
+resource "google_project_iam_binding" "owner_binding" {
+  project = var.project_id
+  role    = "roles/owner"
+  members = [
+    "serviceAccount:${google_service_account.app_svc_acc.email}",
+  ]
+}
+
