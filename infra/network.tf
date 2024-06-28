@@ -45,18 +45,3 @@ resource "google_compute_router_nat" "nat_gateway" {
   nat_ip_allocate_option = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
-
-resource "google_compute_global_address" "private-services-access-ip-ranges" {
-  name          = "${google_compute_network.vpc.name}-private-services-access-ip-ranges"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.vpc.self_link
-}
-
-
-resource "google_service_networking_connection" "creating-connection-to-gcp-service" {
-  network                 = google_compute_network.vpc.self_link
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private-services-access-ip-ranges.name]
-}
