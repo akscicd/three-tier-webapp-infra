@@ -36,14 +36,15 @@ steps:
   dir: sql
 
 
-
 - id: 'replace app-server ip in nginx.conf'
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
-      sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" application-code/nginx.conf
+      sed -i "s/APP_SERVER_PRIVATE_IP/$(terraform output -raw app_server_private_ip)/g" nginx.conf
+      cat nginx.conf
+  dir: application-code
 
 - id: 'replace db ip in DbConfig.js'
   name: 'gcr.io/cloud-builders/gcloud'
@@ -51,28 +52,37 @@ steps:
   args:
     - '-c'
     - |
-      sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" application-code/app-tier/DbConfig.js
+      sed -i "s/DATABASE_HOST_IP/$(terraform output -raw db-host-ip)/g" app-tier/DbConfig.js
+      cat app-tier/DbConfig.js
+  dir: application-code
 
 
 
-- id: 'build docker images of frontend and backend and push them to private repo'
+- id: 'build docker images of frontend push them to private repo'
   name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
     gcloud auth configure-docker europe-west1-docker.pkg.dev
-    cd /root/
-    git clone https://github.com/akscicd/three-tier-webapp-infra.git
     
-    cd /root/three-tier-webapp-infra/backend-docker-image/
-    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend .
-    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend
-    
-    cd /root/three-tier-webapp-infra/frontend-docker-image
     docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend .
     docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/frontend
+  dir: frontend-docker-image
     
+- id: 'build docker images of backend and push them to private repo'
+  name: 'gcr.io/cloud-builders/gcloud-slim'
+  entrypoint: 'sh'
+  args: 
+  - '-c'
+  - |
+    gcloud auth configure-docker europe-west1-docker.pkg.dev
+    
+    docker build --tag europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend .
+    docker push europe-west1-docker.pkg.dev/dynamic-parity-426014-s3/akscicdprivate/backend
+
+  dir: backend-docker-image
+
 options:
   env:
     - TF_VAR_project_id=$PROJECT_ID
