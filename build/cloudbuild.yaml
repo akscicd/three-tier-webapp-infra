@@ -84,16 +84,20 @@ steps:
         cat /workspace/application-code/app-tier/DbConfig.js
     dir: /workspace
 
-  - id: 'commit changes'
+  - id: 'push changes to build folder'
     name: 'gcr.io/cloud-builders/git'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        cd /workspace
+        cd /workspace/three-tier-webapp
+        mkdir -p build/application-code
+        mkdir -p build/application-code/app-tier
+        cp /workspace/application-code/nginx.conf build/application-code/nginx.conf
+        cp /workspace/application-code/app-tier/DbConfig.js build/application-code/app-tier/DbConfig.js
         git config --global user.email "amit.stp2001@gmail.com"
         git config --global user.name "Runner"
-        git add application-code/nginx.conf application-code/app-tier/DbConfig.js
+        git add build/application-code/nginx.conf build/application-code/app-tier/DbConfig.js
         git commit -m "Update nginx.conf and DbConfig.js with actual IPs"
         git push https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git main
 
