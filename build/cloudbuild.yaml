@@ -124,7 +124,7 @@ steps:
 options:
   env:
     - TF_VAR_project_id=$PROJECT_ID
-    - _GITHUB_TOKEN
+    - _GITHUB_TOKEN=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
   logging: CLOUD_LOGGING_ONLY
 
 timeout: 3600s
