@@ -95,15 +95,20 @@ steps:
         mkdir -p build/application-code/app-tier
         cp /workspace/application-code/nginx.conf build/application-code/nginx.conf
         cp /workspace/application-code/app-tier/DbConfig.js build/application-code/app-tier/DbConfig.js
+        echo "1"
         git config --global user.email "amit.stp2001@gmail.com"
         git config --global user.name "Runner"
+        echo "2"
+        git remote add origin https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git
+        echo "3"
         git remote set-url origin https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git
-
-
-        
+        echo "4"
         git add build/application-code/nginx.conf build/application-code/app-tier/DbConfig.js
+        echo "5"
         git commit -m "Update nginx.conf & DbConfig.js with actual IPs"
+        echo "6"
         git push https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git main
+        echo "7"
 
   - id: 'build docker images of frontend push them to private repo'
     name: 'gcr.io/cloud-builders/docker'
