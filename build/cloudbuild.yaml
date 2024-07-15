@@ -97,6 +97,10 @@ steps:
         cp /workspace/application-code/app-tier/DbConfig.js build/application-code/app-tier/DbConfig.js
         git config --global user.email "amit.stp2001@gmail.com"
         git config --global user.name "Runner"
+        git remote set-url origin https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git
+
+
+        
         git add build/application-code/nginx.conf build/application-code/app-tier/DbConfig.js
         git commit -m "Update nginx.conf & DbConfig.js with actual IPs"
         git push https://akscicd:${_GITHUB_TOKEN}@github.com/akscicd/three-tier-webapp.git main
@@ -128,7 +132,7 @@ steps:
 options:
   env:
     - TF_VAR_project_id=$PROJECT_ID
-    - _GITHUB_TOKEN=projects/104230149768/secrets/_GITHUB_TOKEN/versions/1
+    - _GITHUB_TOKEN=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
   logging: CLOUD_LOGGING_ONLY
 
 timeout: 3600s
