@@ -18,8 +18,10 @@ RUN ln -s /root/.nvm/versions/node/v16.20.2/bin/node /usr/local/bin/node
 ENV PATH="/usr/local/bin:${PATH}"
 
 WORKDIR /root/
-RUN git clone https://github.com/akscicd/three-tier-webapp-infra.git
-WORKDIR /root/three-tier-webapp-infra/application-code/app-tier
+RUN git clone https://github.com/akscicd/three-tier-webapp.git
+RUN rm -rf /root/three-tier-webapp/application-code/app-tier/DbConfig.js
+RUN mv /root/three-tier-webapp/build/application-code/app-tier/DbConfig.js /root/three-tier-webapp/application-code/app-tier
+WORKDIR /root/three-tier-webapp/application-code/app-tier
 
 
 RUN . $NVM_DIR/nvm.sh && \
